@@ -77,6 +77,7 @@ func main() {
 	defer f.Close()
 
 	decoder := json.NewDecoder(f)
+	decoder.DisallowUnknownFields()
 	err = decoder.Decode(&config)
 	if err != nil {
 		log.Fatalf("Read(%v): %v", configFile, err)
