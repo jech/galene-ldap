@@ -1,0 +1,76 @@
+Galene-ldap: LDAP integration for the Galene videoconferencing server.
+
+For more information about Galene, please see <https://galene.org>.
+
+1. Build galene-ldap
+
+    CGO_ENABLED=0 go build -ldflags='-s -w'
+
+2. Create galene-ldap.json
+
+There are two ways to perform client authentication using LDAP: using the
+BIND request or matching passwords on the client side.  Using BIND is
+recommended.
+
+In order to use BIND, your galene-ldap.json should look like this:
+
+    {
+      "httpAddress": ":8444",
+      "ldapServer": "ldap://localhost:389",
+      "ldapBase": "ou=users,dc=yunohost,dc=org",
+      "key": {"alg":"HS256","k":"xxx","key_ops":["sign","verify"],"kty":"oct"},
+      "groups": ["test-auth"],
+    }
+
+The field `groups` indicates the set of Galene groups that galene-ldap
+will authorise; you will also need to configure these groups on the Galene
+side (see below).
+
+The field `key` should be a (private or shared) key in JWK format;
+I generate mine using
+
+    jose jwk gen -i '{"kty":"oct","alg":"HS256"}'
+
+In order to use client-side matching, set the field `ldapClientSideValidate`
+to true, and define a privileged user with access to the passwords using
+the fields `ldapAuthDN` and `ldapAuthPassword`:
+
+    {
+      "httpAddress": ":8444",
+      "ldapServer": "ldap://localhost:389",
+      "ldapBase": "ou=users,dc=yunohost,dc=org",
+      "ldapClientSideValidate": true,
+      "ldapAuthDN": "cn=admin,dc=yunohost,dc=org",
+      "ldapAuthPassword": "xxx",
+      "key": {"alg":"HS256","k":"xxx","key_ops":["sign","verify"],"kty":"oct"},
+      "groups": ["test-auth"],
+    }
+
+3. Provide a TLS server certificate
+
+    cp /etc/letsencrypt/live/example.org/privkey.pem key.pem
+    cp /etc/letsencrypt/live/example.org/fullchain.pem cert.pem
+
+4. Run galene-ldap
+
+    nohup ./galene-ldap -debug &
+
+5. Configure a group in Galene
+
+Create a file `groups/test-auth.json` with the following contents:
+
+    {
+        "authServer": "https://galene-ldap.example.org:8444",
+        "authKeys": [
+          {"alg":"HS256","k":"xxx","key_ops":["sign","verify"],"kty":"oct"}
+        ]
+    }
+
+The `authServer` field is the URL at which you instance of `galene-ldap`
+is publicly accessible (it is okay to put it behind a reverse proxy).  The
+`authKeys` field is a list of keys, and must include the key used by
+`galene-ldap` (or at least its public part, if you're using asymmetric
+keying).
+
+-- Juliusz Chroboczek
+
