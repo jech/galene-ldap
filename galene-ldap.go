@@ -44,16 +44,16 @@ func (s jsonSet) MarshalJSON() ([]byte, error) {
 }
 
 type configuration struct {
+	Groups                 jsonSet                `json:"groups"`
+	PasswordFallback       bool                   `json:"passwordFallback"`
 	HttpAddress            string                 `json:"httpAddress"`
 	Insecure               bool                   `json:"insecure"`
+	Key                    map[string]interface{} `json:"key"`
 	LdapServer             string                 `json:"ldapServer"`
 	LdapBase               string                 `json:"ldapBase"`
 	LdapAuthDN             string                 `json:"ldapAuthDN"`
 	LdapAuthPassword       string                 `json:"ldapAuthPassword"`
 	LdapClientSideValidate bool                   `json:"ldapClientSideValidate"`
-	Groups                 jsonSet                `json:"groups"`
-	Key                    map[string]interface{} `json:"key"`
-	PasswordFallback       bool                   `json:"passwordFallback"`
 }
 
 var debug bool
@@ -160,7 +160,6 @@ func httpHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Not authorised", http.StatusUnauthorized)
 		}
 	}
-
 
 	decoder := json.NewDecoder(r.Body)
 	var req galeneRequest

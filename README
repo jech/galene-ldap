@@ -72,5 +72,29 @@ is publicly accessible (it is okay to put it behind a reverse proxy).  The
 `galene-ldap` (or at least its public part, if you're using asymmetric
 keying).
 
+# Configuration file reference
+
+The `galene-ldap.json` file may contain the following fields:
+
+  - `groups`, the set of groups we will validate; requests for groups
+    outside this set will cause the client to fail login or to fallback to
+    password authentication, depending on `passwordFallback`;
+  - `passwordFallback`, if true, then the client will be instructed to
+    fallback to password authentication if the group or user is not found;
+    by default, we instruct the client fail logins for unknown users,
+    which avoids leaking passwords to the server;
+  - `httpAddress`, the address on which the HTTPS server listens,
+    in the format `host:port`;
+  - `insecure`, if true we run HTTP instead of HTTPS; this is only
+    suitable when running behind a reverse proxy that terminates TLS;
+  - `key`, the key used for signing tokens, in JWK format;
+  - `ldapServer`, the URL of the LDAP server (`ldap://` or `ldaps://`);
+  - `ldapBase`, the base DN used for user searches;
+  - `ldapAuthDN` and `ldapAuthPassword`, the DN and password we will bind
+    as before performing a search; it not specified, we perform an
+    anonymous BIND;
+  - `ldapClientSideValidate`, if true, then we validate passwords in the
+    client; by default, we validate passwords by attempting a BIND.
+
 -- Juliusz Chroboczek
 
