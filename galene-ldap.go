@@ -134,6 +134,14 @@ type galeneRequest struct {
 	Password string `json:"password"`
 }
 
+func extractContentType(ctype string) string {
+	fields := strings.Split(ctype, ";")
+	if len(fields) == 0 {
+		return ""
+	}
+	return strings.TrimSpace(fields[0])
+}
+
 func httpHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.Error(w, "Not found", http.StatusNotFound)
@@ -144,7 +152,7 @@ func httpHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "OPTIONS" {
 		w.Header().Set("Access-Control-Allow-Methods", "POST")
 		w.Header().Set("Access-Control-Allow-Headers",
-			"Authorization, Content-Type",
+			"Content-Type",
 		)
 		return
 	}
@@ -152,6 +160,13 @@ func httpHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		w.Header().Set("Allow", "OPTIONS, POST")
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	ctype := extractContentType(r.Header.Get("Content-Type"))
+	if !strings.EqualFold(ctype, "application/json") {
+		log.Printf("Unexpected content-type: %v", ctype)
+		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
 
