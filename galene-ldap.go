@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"flag"
@@ -92,7 +93,8 @@ func main() {
 		config.HttpAddress = ":8443"
 	}
 
-	verifyCh = make(chan verifyReq, 16)
+	// unbuffered, so we can discard requests
+	verifyCh = make(chan verifyReq)
 	go verifier(verifyCh)
 
 	http.HandleFunc("/", httpHandler)
@@ -196,7 +198,7 @@ func httpHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	found, valid, err := verify(req.Username, req.Password)
+	found, valid, err := verify(r.Context(), req.Username, req.Password)
 	if err != nil {
 		log.Printf("Verify: %v", err)
 		http.Error(w, "Internal server error",
@@ -276,9 +278,13 @@ func verifier(ch <-chan verifyReq) {
 	}
 }
 
-func verify(user, password string) (bool, bool, error) {
+func verify(ctx context.Context, user, password string) (bool, bool, error) {
 	ch := make(chan verifyResp, 1)
-	verifyCh <- verifyReq{user: user, password: password, ch: ch}
-	resp := <-ch
-	return resp.found, resp.valid, resp.error
+	select {
+	case verifyCh <- verifyReq{user: user, password: password, ch: ch}:
+		resp := <-ch
+		return resp.found, resp.valid, resp.error
+	case <-ctx.Done():
+		return false, false, ctx.Err()
+	}
 }
