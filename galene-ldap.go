@@ -232,11 +232,13 @@ func httpHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	token, err := makeToken(
-		signingKeyAlg, signingKey, "", req.Location, req.Username, req.Password,
+		signingKeyAlg, signingKey, "",
+		req.Location, req.Username, req.Password,
 	)
 	if err != nil {
 		log.Printf("makeToken: %v", err)
-		http.Error(w, "Not authorised", http.StatusUnauthorized)
+		http.Error(w, "Couldn't generate token",
+			http.StatusInternalServerError)
 		return
 	}
 
