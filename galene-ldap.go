@@ -297,8 +297,12 @@ func verify(ctx context.Context, user, password string) (bool, bool, error) {
 	ch := make(chan verifyResp, 1)
 	select {
 	case verifyCh <- verifyReq{user: user, password: password, ch: ch}:
-		resp := <-ch
-		return resp.found, resp.valid, resp.error
+		select {
+		case resp := <-ch:
+			return resp.found, resp.valid, resp.error
+		case <-ctx.Done():
+			return false, false, ctx.Err()
+		}
 	case <-ctx.Done():
 		return false, false, ctx.Err()
 	}
