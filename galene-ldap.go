@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"flag"
 	"io"
 	"log"
@@ -260,6 +261,7 @@ type verifyReq struct {
 func verifier(ch <-chan verifyReq) {
 	var conn *ldap.Conn
 	var err error
+	var justConnected bool
 	for {
 		req, ok := <-ch
 		if !ok {
@@ -277,6 +279,9 @@ func verifier(ch <-chan verifyReq) {
 				close(req.ch)
 				continue
 			}
+			justConnected = true
+		} else {
+			justConnected = false
 		}
 		found, valid, err :=
 			ldapVerify(
@@ -286,6 +291,12 @@ func verifier(ch <-chan verifyReq) {
 		if err != nil {
 			conn.Close()
 			conn = nil
+			var lerr ldap.Error
+			if !justConnected && errors.As(err, &lerr) &&
+				lerr.ResultCode == ldap.ErrorNetwork {
+				// try again with a fresh connection
+				continue
+			}
 			req.ch <- verifyResp{error: err}
 			close(req.ch)
 			continue
