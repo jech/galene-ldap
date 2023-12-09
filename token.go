@@ -81,10 +81,19 @@ func parseKey(key map[string]interface{}) (string, interface{}, error) {
 		if !curve.IsOnCurve(&x, &y) {
 			return "", nil, errors.New("key is not on curve")
 		}
-		return alg, &ecdsa.PublicKey{
-			Curve: curve,
-			X:     &x,
-			Y:     &y,
+		dbytes, err := parseBase64("d", key)
+		if err != nil {
+			return "", nil, err
+		}
+		var d big.Int
+		d.SetBytes(dbytes)
+		return alg, &ecdsa.PrivateKey{
+			PublicKey: ecdsa.PublicKey{
+				Curve: curve,
+				X:     &x,
+				Y:     &y,
+			},
+			D: &d,
 		}, nil
 	default:
 		return "", nil, errors.New("unknown key type")
