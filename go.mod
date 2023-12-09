@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/GehirnInc/crypt v0.0.0-20230320061759-8cc1b52080c5
 	github.com/go-ldap/ldap/v3 v3.4.6
-	github.com/golang-jwt/jwt/v4 v4.5.0
+	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/jech/cert v0.0.0-20231130230440-8581d1f8dbde
 )
 

@@ -8,7 +8,7 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func parseBase64(k string, d map[string]interface{}) ([]byte, error) {
