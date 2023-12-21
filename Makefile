@@ -31,17 +31,18 @@ print:
 
 ci-build: 
 	# You can call this locally. github workflow also calls it.
+	# Its calling everything in the makefile ...
 	@echo ""
 	@echo "CI BUILD starting ..."
 	$(MAKE) print 
-	$(MAKE) clean
-	$(MAKE) build
+	$(MAKE) clean-all
+	$(MAKE) build-debug
 	$(MAKE) data-bootstrap
-	$(MAKE) run
+	$(MAKE) run-debug
 	@echo ""
 	@echo "CI BUILD ended ...."
 
-clean: data-del build-del
+clean-all: data-clean build-clean
 
 upgrade:
 	# https://github.com/oligot/go-mod-upgrade
@@ -50,20 +51,25 @@ upgrade:
 	go-mod-upgrade
 	go mod tidy
 
-build:
-	CGO_ENABLED=1 go build -o $(BIN) .
-build-del:
+build-init:
+	mkdir -p $(BIN_ROOT)
+build-clean:
 	rm -rf $(BIN_ROOT)
+build: build-init
+	CGO_ENABLED=1 go build -o $(BIN) .
+build-debug: build-init
+	CGO_ENABLED=1 go build -ldflags='-s -w' -o $(BIN) .
 
-data:
+
+data-init:
 	mkdir -p $(DATA_ROOT)
-data-del:
+data-clean:
 	rm -rf $(DATA_ROOT)
 
+# toggle to choose what example you want to use...
+#DATA_EXAMPLE=examples/01/galene-ldap.json
 DATA_EXAMPLE=examples/02/galene-ldap.json
-data-bootstrap: data
-	# cp in config
-	# change to choose what example you want to use...
+data-bootstrap: data-init
 	cp $(DATA_EXAMPLE) $(DATA)
 
 	# TODO: cp in certs...Gen with mkcert.
@@ -71,6 +77,9 @@ data-bootstrap: data
 run-h:
 	$(BIN) -h
 run:
-	nohup $(BIN) -debug -data $(DATA) &
+	$(BIN) -data $(DATA_ROOT)
+	# http://localhost:8088
+run-debug:
+	nohup $(BIN) -debug -data $(DATA_ROOT) &
 	# http://localhost:8088
 

@@ -1,1 +1,1 @@
-just the basic example
+just the basic example from the README

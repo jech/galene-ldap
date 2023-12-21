@@ -3,5 +3,5 @@
     "ldapServer": "ldap://localhost:389",
     "ldapBase": "ou=users,dc=yunohost,dc=org",
     "key": {"alg":"HS256","k":"xxx","key_ops":["sign","verify"],"kty":"oct"},
-    "groups": ["test-auth"],
+    "groups": ["test-auth"]
 }
