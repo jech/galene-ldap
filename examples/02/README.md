@@ -1,0 +1,1 @@
+config for using with galene

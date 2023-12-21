@@ -1,18 +1,34 @@
+OS_GO_BIN_NAME=go
+ifeq ($(shell uname),Windows)
+	OS_GO_BIN_NAME=go.exe
+endif
 
+OS_GO_OS=$(shell $(OS_GO_BIN_NAME) env GOOS)
+# toggle to fake being windows..
+#OS_GO_OS=windows
 
 BIN_ROOT=$(PWD)/.bin
 BIN=$(BIN_ROOT)/galene-ldap
+ifeq ($(OS_GO_OS),windows)
+	BIN=$(BIN_ROOT)/galene-ldap.exe
+endif
 
 DATA_ROOT=$(PWD)/.data
 DATA=$(DATA_ROOT)/galene-ldap.json
 
 print:
 	@echo ""
+	@echo "OS_GO_BIN_NAME:  $(OS_GO_BIN_NAME)"
+	@echo ""
+	@echo "OS_GO_OS:  $(OS_GO_OS)"
+	@echo ""
 	@echo "BIN_ROOT:  $(BIN_ROOT)"
+	@echo "BIN:       $(BIN)"
 	@echo ""
 	@echo "DATA_ROOT: $(DATA_ROOT)"
+	@echo "DATA:      $(DATA)"
 	@echo ""
-	@echo ""
+
 
 
 upgrade:
@@ -34,12 +50,15 @@ data-del:
 	rm -rf $(DATA_ROOT)
 data-bootstrap: data
 	# cp in config
+	# change to choose what example you want to use...
 	$(REPO_CMD) cp examples/02/galene-ldap.json $(DATA)
-	# cp in certs...
+
+	# TODO: cp in certs...Gen with mkcert.
 
 run-h:
 	$(BIN) -h
 run:
 	nohup $(BIN) -debug -data $(DATA) &
-	#  http://localhost:8088
+
+	# http://localhost:8088
 
