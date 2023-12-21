@@ -38,6 +38,7 @@ upgrade:
 
 	go-mod-upgrade
 	go mod tidy
+ci-build: build
 
 build:
 	CGO_ENABLED=1 go build -o $(BIN) .
