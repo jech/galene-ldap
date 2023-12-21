@@ -1,0 +1,15 @@
+{
+    "httpAddress": ":8444",
+    "ldapServer": "ldap://ldap.example.org:389",
+    "ldapBase": "OU=users,DC=domain,DC=example,DC=org",
+    "ldapClientSideValidate": false,
+    "ldapAuthDN": "CN=users-sync,OU=spec,OU=users,DC=domain,DC=example,DC=org",
+    "ldapAuthPassword": "secret_pwd",
+    "passwordFallback": true,
+    "key": {"alg":"HS256","k":"xxx","key_ops":["sign","verify"],"kty":"oct"},
+    "groups-exception": [""],
+    "op": [
+        {"group": "groupname1", "username": ["username1","username2"]},
+        {"group": "groupname2", "username": ["username1","username2"]}
+    ]
+}

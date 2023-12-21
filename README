@@ -2,6 +2,10 @@ Galene-ldap: LDAP integration for the Galene videoconferencing server.
 
 For more information about Galene, please see <https://galene.org>.
 
+0. Use the Makefile
+
+or use the steps below.
+
 1. Build galene-ldap
 
     CGO_ENABLED=0 go build -ldflags='-s -w'

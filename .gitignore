@@ -1,2 +1,6 @@
 *~
+.bin
+.data
+nohup.out
+
 galene-ldap
