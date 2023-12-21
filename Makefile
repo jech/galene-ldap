@@ -30,6 +30,7 @@ print:
 	@echo ""
 
 ci-build: 
+	# You can call this locally. github workflow also calls it.
 	@echo ""
 	@echo "CI BUILD starting ..."
 	$(MAKE) print 
@@ -63,7 +64,7 @@ DATA_EXAMPLE=examples/02/galene-ldap.json
 data-bootstrap: data
 	# cp in config
 	# change to choose what example you want to use...
-	$(REPO_CMD) cp $(DATA_EXAMPLE) $(DATA)
+	cp $(DATA_EXAMPLE) $(DATA)
 
 	# TODO: cp in certs...Gen with mkcert.
 
