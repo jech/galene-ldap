@@ -29,16 +29,25 @@ print:
 	@echo "DATA:      $(DATA)"
 	@echo ""
 
+ci-build: 
+	@echo ""
+	@echo "CI BUILD starting ..."
+	$(MAKE) print 
+	$(MAKE) clean
+	$(MAKE) build
+	$(MAKE) data-bootstrap
+	$(MAKE) run
+	@echo ""
+	@echo "CI BUILD ended ...."
 
+clean: data-del build-del
 
 upgrade:
 	# https://github.com/oligot/go-mod-upgrade
 	# https://github.com/oligot/go-mod-upgrade/releases/tag/v0.9.1
 	go install github.com/oligot/go-mod-upgrade@v0.9.1
-
 	go-mod-upgrade
 	go mod tidy
-ci-build: build
 
 build:
 	CGO_ENABLED=1 go build -o $(BIN) .
@@ -49,10 +58,12 @@ data:
 	mkdir -p $(DATA_ROOT)
 data-del:
 	rm -rf $(DATA_ROOT)
+
+DATA_EXAMPLE=examples/02/galene-ldap.json
 data-bootstrap: data
 	# cp in config
 	# change to choose what example you want to use...
-	$(REPO_CMD) cp examples/02/galene-ldap.json $(DATA)
+	$(REPO_CMD) cp $(DATA_EXAMPLE) $(DATA)
 
 	# TODO: cp in certs...Gen with mkcert.
 
@@ -60,6 +71,5 @@ run-h:
 	$(BIN) -h
 run:
 	nohup $(BIN) -debug -data $(DATA) &
-
 	# http://localhost:8088
 
