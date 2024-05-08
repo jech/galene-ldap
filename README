@@ -27,9 +27,14 @@ will authorise; you will also need to configure these groups on the Galene
 side (see below).
 
 The field `key` should be a (private or shared) key in JWK format;
-I generate mine using
+You can generate a shared key using:
 
-    jose jwk gen -i '{"kty":"oct","alg":"HS256"}'
+    jose jwk gen -i '{"kty":"oct","alg":"HS256"}' -o shared.jwk
+
+and a private/public keypair using
+
+    jose jwk gen -i '{"kty":"EC","alg":"ES256"}' -o private.jwk
+    jose jwk pub -i private.jwk -o public.jwk
 
 In order to use client-side matching, set the field `ldapClientSideValidate`
 to true, and define a privileged user with access to the passwords using
