@@ -113,7 +113,7 @@ func makeToken(alg string, key interface{}, issuer, location, username, password
 	if username != "" {
 		m["sub"] = username
 	}
-	m["permissions"] = []string{"present"}
+	m["permissions"] = []string{"present", "message"}
 	m["iat"] = now.Add(-time.Second).Unix()
 	m["exp"] = now.Add(30 * time.Second).Unix()
 
