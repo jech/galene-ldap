@@ -47,6 +47,7 @@ func (s jsonSet) MarshalJSON() ([]byte, error) {
 
 type configuration struct {
 	Groups                 jsonSet                `json:"groups"`
+	AllowSubGroups         bool                   `json:"allow-subgroups"`
 	PasswordFallback       bool                   `json:"passwordFallback"`
 	HttpAddress            string                 `json:"httpAddress"`
 	Insecure               bool                   `json:"insecure"`
@@ -143,6 +144,18 @@ func extractContentType(ctype string) string {
 	return strings.TrimSpace(fields[0])
 }
 
+func validGroup(group string) bool {
+	if config.Groups[group] {
+		return true
+	}
+	if config.AllowSubGroups {
+		lastIndex := strings.LastIndex(group, "/")
+		return validGroup(group[:lastIndex])
+
+	}
+	return false
+}
+
 func httpHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.Error(w, "Not found", http.StatusNotFound)
@@ -208,7 +221,7 @@ func httpHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	group := strings.TrimSuffix(strings.TrimPrefix(p, "/group/"), "/")
-	if !config.Groups[group] {
+	if !validGroup(group) {
 		debugf("Group not found")
 		fallback()
 		return
