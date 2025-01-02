@@ -56,6 +56,7 @@ type configuration struct {
 	LdapAuthDN             string                 `json:"ldapAuthDN"`
 	LdapAuthPassword       string                 `json:"ldapAuthPassword"`
 	LdapClientSideValidate bool                   `json:"ldapClientSideValidate"`
+	Permissions            []string               `json:"permissions"`
 }
 
 var debug bool
@@ -234,7 +235,7 @@ func httpHandler(w http.ResponseWriter, r *http.Request) {
 
 	token, err := makeToken(
 		signingKeyAlg, signingKey, "",
-		req.Location, req.Username, req.Password,
+		req.Location, req.Username, req.Password, config.Permissions,
 	)
 	if err != nil {
 		log.Printf("makeToken: %v", err)

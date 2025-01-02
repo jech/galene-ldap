@@ -32,7 +32,7 @@ func TestSign(t *testing.T) {
 		}
 
 		token, err := makeToken(
-			alg, key, "issuer", "location", "username", "password",
+			alg, key, "issuer", "location", "username", "password", nil,
 		)
 		if err != nil {
 			t.Errorf("Couldn't generate token %v: %v", i, err)
