@@ -100,6 +100,8 @@ The `galene-ldap.json` file may contain the following fields:
     anonymous BIND;
   - `ldapClientSideValidate`, if true, then we validate passwords in the
     client; by default, we validate passwords by attempting a BIND.
+  - `defaultPermissions`: the permissions to give to users.  If not set,
+    it defaults to `["present", "message"]`.
 
 -- Juliusz Chroboczek
 

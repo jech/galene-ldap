@@ -45,6 +45,26 @@ func (s jsonSet) MarshalJSON() ([]byte, error) {
 	return json.Marshal(a)
 }
 
+// maybePermissions is a set of permissions that keeps track of whether it
+// was set explicitly.
+type maybePermissions struct {
+	set         bool
+	permissions []string
+}
+
+func (s *maybePermissions) UnmarshalJSON(b []byte) error {
+	var p []string
+	err := json.Unmarshal(b, &p)
+	if err != nil {
+		return err
+	}
+	*s = maybePermissions{
+		set:         true,
+		permissions: p,
+	}
+	return nil
+}
+
 type configuration struct {
 	Groups                 jsonSet                `json:"groups"`
 	PasswordFallback       bool                   `json:"passwordFallback"`
@@ -56,6 +76,7 @@ type configuration struct {
 	LdapAuthDN             string                 `json:"ldapAuthDN"`
 	LdapAuthPassword       string                 `json:"ldapAuthPassword"`
 	LdapClientSideValidate bool                   `json:"ldapClientSideValidate"`
+	DefaultPermissions     maybePermissions       `json:"defaultPermissions"`
 }
 
 var debug bool
@@ -232,9 +253,15 @@ func httpHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	permissions := []string{"present", "message"}
+	if config.DefaultPermissions.set {
+		permissions = config.DefaultPermissions.permissions
+	}
+
 	token, err := makeToken(
 		signingKeyAlg, signingKey, "",
 		req.Location, req.Username, req.Password,
+		permissions,
 	)
 	if err != nil {
 		log.Printf("makeToken: %v", err)

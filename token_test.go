@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"testing"
+	"reflect"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -33,6 +34,7 @@ func TestSign(t *testing.T) {
 
 		token, err := makeToken(
 			alg, key, "issuer", "location", "username", "password",
+			[]string{"present", "message"},
 		)
 		if err != nil {
 			t.Errorf("Couldn't generate token %v: %v", i, err)
@@ -54,3 +56,29 @@ func TestSign(t *testing.T) {
 		}
 	}
 }
+
+func TestConfigurationPermissions(t *testing.T) {
+	var c configuration
+	err := json.Unmarshal([]byte("{}"), &c)
+	if err != nil {
+		t.Errorf("Unmarshal: %v", err)
+	}
+	if c.DefaultPermissions.set {
+		t.Errorf("Permissions are set")
+	}
+
+	err = json.Unmarshal([]byte(`{"defaultPermissions": ["admin"]}`), &c)
+	if err != nil {
+		t.Errorf("Unmarshal: %v", err)
+	}
+	if !c.DefaultPermissions.set {
+		t.Errorf("Permissions are not set")
+	}
+	if !reflect.DeepEqual(
+		c.DefaultPermissions.permissions, []string{"admin"},
+	) {
+		t.Errorf("Expected admin, got %v",
+			c.DefaultPermissions.permissions)
+	}
+}
+

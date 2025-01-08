@@ -100,7 +100,7 @@ func parseKey(key map[string]interface{}) (string, interface{}, error) {
 	}
 }
 
-func makeToken(alg string, key interface{}, issuer, location, username, password string) (string, error) {
+func makeToken(alg string, key interface{}, issuer, location, username, password string, permissions []string) (string, error) {
 	now := time.Now()
 
 	m := make(map[string]interface{})
@@ -113,7 +113,7 @@ func makeToken(alg string, key interface{}, issuer, location, username, password
 	if username != "" {
 		m["sub"] = username
 	}
-	m["permissions"] = []string{"present", "message"}
+	m["permissions"] = permissions
 	m["iat"] = now.Add(-time.Second).Unix()
 	m["exp"] = now.Add(30 * time.Second).Unix()
 
