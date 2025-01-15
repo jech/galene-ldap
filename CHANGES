@@ -1,0 +1,4 @@
+15 January 2025: galene-ldap 0.2
+
+  * Added the ability to configure permissions.  Thanks to
+    Baptiste Daroussin.
