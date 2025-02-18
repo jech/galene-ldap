@@ -31,7 +31,7 @@ func ldapConnect(server, authDN, authPW string) (*ldap.Conn, error) {
 	return conn, nil
 }
 
-func ldapVerify(conn *ldap.Conn, clientside bool, authDN, authPW, user, password string) (bool, bool, error) {
+func ldapVerify(conn *ldap.Conn, clientside bool, authDN, authPW, user, objectclass, password string) (bool, bool, error) {
 	attrs := []string{"dn"}
 	if clientside {
 		attrs = append(attrs, "userPassword")
@@ -41,7 +41,8 @@ func ldapVerify(conn *ldap.Conn, clientside bool, authDN, authPW, user, password
 		ldap.ScopeWholeSubtree,
 		ldap.NeverDerefAliases,
 		0, 0, false,
-		fmt.Sprintf("(&(objectClass=posixAccount)(uid=%s))",
+		fmt.Sprintf("(&(objectClass=%s)(uid=%s))",
+			ldap.EscapeFilter(objectclass),
 			ldap.EscapeFilter(user)),
 		attrs,
 		nil,

@@ -75,6 +75,7 @@ type configuration struct {
 	LdapBase               string                 `json:"ldapBase"`
 	LdapAuthDN             string                 `json:"ldapAuthDN"`
 	LdapAuthPassword       string                 `json:"ldapAuthPassword"`
+	LdapObjectClass        string                 `json:"ldapObjectClass"`
 	LdapClientSideValidate bool                   `json:"ldapClientSideValidate"`
 	DefaultPermissions     maybePermissions       `json:"defaultPermissions"`
 }
@@ -113,6 +114,10 @@ func main() {
 
 	if config.HttpAddress == "" {
 		config.HttpAddress = ":8443"
+	}
+
+	if config.LdapObjectClass == "" {
+		config.LdapObjectClass = "posixAccount"
 	}
 
 	// unbuffered, so we can discard requests
@@ -315,7 +320,7 @@ func verifier(ch <-chan verifyReq) {
 			ldapVerify(
 				conn, config.LdapClientSideValidate,
 				config.LdapAuthDN, config.LdapAuthPassword,
-				req.user, req.password)
+				req.user, config.LdapObjectClass, req.password)
 		if err != nil {
 			conn.Close()
 			conn = nil
