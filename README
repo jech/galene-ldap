@@ -102,6 +102,8 @@ The `galene-ldap.json` file may contain the following fields:
     client; by default, we validate passwords by attempting a BIND.
   - `defaultPermissions`: the permissions to give to users.  If not set,
     it defaults to `["present", "message"]`.
+  - `ldapObjectClass`: the objectClass of the user entry to search. If not
+    set, it defaults to `posixAccount`.
 
 -- Juliusz Chroboczek
 
